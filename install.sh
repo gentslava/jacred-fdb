@@ -3,7 +3,7 @@ DEST="/home/jacred"
 
 # Become root
 # sudo su -
-apt-get update && apt-get install -y wget unzip
+apt update && apt install -y wget unzip
 
 # Install .NET
 wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod 755 dotnet-install.sh
