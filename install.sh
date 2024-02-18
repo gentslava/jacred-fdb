@@ -42,7 +42,7 @@ systemctl daemon-reload
 systemctl enable jacred
 systemctl start jacred
 
-crontab -l | { cat; echo "*/40 *   *   *   *    curl -s \"http://127.0.0.1:9117/jsondb/save\""; } | crontab -
+crontab -l | { cat; echo "*/40 * * * * curl -s \"http://127.0.0.1:9117/jsondb/save\""; } | crontab -
 
 # iptables drop
 cat <<EOF > iptables-drop.sh
