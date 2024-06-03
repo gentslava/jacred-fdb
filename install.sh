@@ -3,7 +3,7 @@ DEST="/home/jacred"
 
 # Become root
 # sudo su -
-apt-get update && apt-get install -y wget unzip
+apt update && apt install -y wget unzip
 
 # Install .NET
 wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod 755 dotnet-install.sh
@@ -42,7 +42,7 @@ systemctl daemon-reload
 systemctl enable jacred
 systemctl start jacred
 
-crontab -l | { cat; echo "*/40 *   *   *   *    curl -s \"http://127.0.0.1:9117/jsondb/save\""; } | crontab -
+crontab -l | { cat; echo "*/40 * * * * curl -s \"http://127.0.0.1:9117/jsondb/save\""; } | crontab -
 
 # iptables drop
 cat <<EOF > iptables-drop.sh
@@ -69,7 +69,7 @@ echo "Please check/edit $DEST/init.conf params and configure it"
 echo ""
 echo "Then [re]start it as systemctl [re]start jacred"
 echo ""
-echo "Clear iptables if port 9118 is not available"
+echo "Clear iptables if port 9117 is not available"
 echo "bash $DEST/iptables-drop.sh"
 echo ""
 echo "Full setup crontab"
