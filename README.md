@@ -43,12 +43,14 @@ services:
 
 ```
 
-# Настройка парсера
-1. Настроить init.conf (пример настроек в example.conf)
-2. Перенести в crontab "Data/crontab" или указать сервер "syncapi" в init.conf
+* ПО УМОЛЧАНИЯ НАСТРОЕНА СИНХРОНИЗАЦИЯ БАЗЫ С ВНЕШНЕГО СЕРВЕРА
 
 # Источники
-Kinozal, Nnmclub, Rutor, Torrentby, Bitru, Rutracker, Megapeer, Selezen, Toloka (UKR), Rezka, Baibako, LostFilm, Anilibria, Animelayer, Anifilm
+Kinozal, Nnmclub, Rutor, Torrentby, Bitru, Rutracker, Megapeer, Selezen, Toloka (UKR), Baibako, LostFilm, Anilibria, Animelayer
+
+# Самостоятельный парсинг источников
+1. Настроить init.conf (пример настроек в example.conf)
+2. Перенести в crontab "Data/crontab" или указать сервер "syncapi" в init.conf
 
 # Доступ к доменам .onion
 1. Запустить tor на порту 9050
@@ -63,12 +65,11 @@ Kinozal, Nnmclub, Rutor, Torrentby, Bitru, Rutracker, Megapeer, Selezen, Toloka 
 * timeSync - интервал синхронизации с базой syncapi
 * maxreadfile - максимальное количество открытых файлов за один поисковый запрос
 * evercache - хранить открытые файлы в кеше (рекомендуется для общего доступа с высокой нагрузкой)
-* fdbPathLevels - для релиза 25.01.2023 установить в 1
 * timeStatsUpdate - интервал обновления статистики в минутах
 
 
-# Настройка init.conf
-* Список всех параметров, а так же значения по умолчанию смотреть в example.conf
+# Пример init.conf
+* Список всех параметров, а так же значения по умолчанию смотреть в example.conf 
 * В init.conf нужно указывать только те параметры, которые хотите изменить
 
 ```

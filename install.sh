@@ -15,8 +15,14 @@ source ~/.bashrc
 # Download zip
 mkdir $DEST -p && cd $DEST
 wget https://github.com/immisterio/jacred-fdb/releases/latest/download/publish.zip
-unzip -o publish.zip
+unzip -oq publish.zip
 rm -f publish.zip
+
+# Download database
+wget http://redb.cfhttp.top/latest.zip
+echo "Unpacking the database"
+unzip -oq latest.zip
+rm -f latest.zip
 
 # Create service
 echo ""

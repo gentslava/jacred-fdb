@@ -13,6 +13,7 @@ using MonoTorrent;
 using JacRed.Models.Details;
 using JacRed.Models.Tracks;
 using JacRed.Models.Api;
+using Microsoft.AspNetCore.Http;
 
 namespace JacRed.Controllers
 {
@@ -22,6 +23,30 @@ namespace JacRed.Controllers
         public ActionResult Index()
         {
             return File(System.IO.File.OpenRead("wwwroot/index.html"), "text/html");
+        }
+
+        [Route("health")]
+        public IActionResult Health()
+        {
+            return Json(new Dictionary<string, string>
+            {
+                ["status"] = "OK"
+            });
+        }
+
+        [Route("version")]
+        public ActionResult Version() 
+        {
+            return Content("11", contentType: "text/plain; charset=utf-8");
+        }
+
+        [Route("lastupdatedb")]
+        public ActionResult LastUpdateDB() 
+        {
+            if (FileDB.masterDb == null || FileDB.masterDb.Count == 0)
+                return Content("01.01.2000 01:01", contentType: "text/plain; charset=utf-8");
+
+            return Content(FileDB.masterDb.OrderByDescending(i => i.Value.updateTime).First().Value.updateTime.ToString("dd.MM.yyyy HH:mm"), contentType: "text/plain; charset=utf-8");
         }
 
         [Route("api/v1.0/conf")]
@@ -105,6 +130,9 @@ namespace JacRed.Controllers
             void AddTorrents(TorrentDetails t)
             {
                 if (AppInit.conf.synctrackers != null && !AppInit.conf.synctrackers.Contains(t.trackerName))
+                    return;
+
+                if (AppInit.conf.disable_trackers != null && AppInit.conf.disable_trackers.Contains(t.trackerName))
                     return;
 
                 if (torrents.TryGetValue(t.url, out TorrentDetails val))
@@ -665,6 +693,9 @@ namespace JacRed.Controllers
                 if (AppInit.conf.synctrackers != null && !AppInit.conf.synctrackers.Contains(t.trackerName))
                     return;
 
+                if (AppInit.conf.disable_trackers != null && AppInit.conf.disable_trackers.Contains(t.trackerName))
+                    return;
+
                 if (torrents.TryGetValue(t.url, out TorrentDetails val))
                 {
                     if (t.updateTime > val.updateTime)
@@ -790,6 +821,102 @@ namespace JacRed.Controllers
                 i.seasons,
                 i.types
             }));
+        }
+        #endregion
+
+        #region Qualitys
+        [Route("/api/v1.0/qualitys")]
+        public JsonResult Qualitys(string name, string originalname, string type, int page = 1, int take = 1000)
+        {
+            var torrents = new Dictionary<string, Dictionary<int, Models.TorrentQuality>>();
+
+            #region AddTorrents
+            void AddTorrents(TorrentDetails t)
+            {
+                if (t?.types == null || t.types.Contains("sport") || t.relased == 0)
+                    return;
+
+                if (!string.IsNullOrEmpty(type) && !t.types.Contains(type))
+                    return;
+
+                string key = $"{StringConvert.SearchName(t.name)}:{StringConvert.SearchName(t.originalname)}";
+
+                var langs = t.languages;
+
+                if (t.ffprobe != null || !AppInit.conf.tracks)
+                    langs = TracksDB.Languages(t, t.ffprobe);
+                else
+                {
+                    var streams = TracksDB.Get(t.magnet, t.types);
+                    langs = TracksDB.Languages(t, streams ?? t.ffprobe);
+                }
+
+                var model = new Models.TorrentQuality() 
+                {
+                    types = t.types.ToHashSet(),
+                    createTime = t.createTime,
+                    updateTime = t.updateTime,
+                    languages = langs ?? new HashSet<string>(),
+                    qualitys = new HashSet<int>() { t.quality }
+                };
+
+                if (torrents.TryGetValue(key, out Dictionary<int, Models.TorrentQuality> val))
+                {
+                    if (val.TryGetValue(t.relased, out Models.TorrentQuality _md))
+                    {
+                        if (langs != null)
+                        {
+                            foreach (var item in langs)
+                                _md.languages.Add(item);
+                        }
+
+                        if (t.types != null)
+                        {
+                            foreach (var item in t.types)
+                                _md.types.Add(item);
+                        }
+
+                        _md.qualitys.Add(t.quality);
+
+                        if (_md.createTime > t.createTime)
+                            _md.createTime = t.createTime;
+
+                        if (t.updateTime > _md.updateTime)
+                            _md.updateTime = t.updateTime;
+
+                        val[t.relased] = _md;
+                    }
+                    else
+                    {
+                        val.TryAdd(t.relased, model);
+                    }
+
+                    torrents[key] = val;
+                }
+                else
+                {
+                    torrents.TryAdd(key, new Dictionary<int, Models.TorrentQuality>() { [t.relased] = model });
+                }
+            }
+            #endregion
+
+            string _s = StringConvert.SearchName(name);
+            string _so = StringConvert.SearchName(originalname);
+
+            var mdb = FileDB.masterDb.OrderByDescending(i => i.Value.updateTime).Where(i => (_s == null && _so == null) || (_s != null && i.Key.Contains(_s)) || (_so != null && i.Key.Contains(_so)));
+            if (!AppInit.conf.evercache.enable || AppInit.conf.evercache.validHour > 0)
+                mdb = mdb.Take(AppInit.conf.maxreadfile);
+
+            foreach (var val in mdb)
+            {
+                foreach (var t in FileDB.OpenRead(val.Key, true).Values)
+                    AddTorrents(t);
+            }
+
+            if (take == -1)
+                return Json(torrents);
+
+            return Json(torrents.Skip((page * take) - take).Take(take));
         }
         #endregion
 

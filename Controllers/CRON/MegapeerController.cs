@@ -80,11 +80,14 @@ namespace JacRed.Controllers.CRON
                     continue;
 
                 // Максимальное количиство страниц
-                int.TryParse(Regex.Match(html, ">Всего: ([0-9]+)</td>").Groups[1].Value, out int maxpages);
+                int.TryParse(Regex.Match(html, ">Всего: ([0-9]+)").Groups[1].Value, out int maxpages);
                 maxpages = maxpages / 50;
 
                 if (maxpages > 0)
                 {
+                    if (maxpages > 10)
+                        maxpages = 10;
+
                     // Загружаем список страниц в список задач
                     for (int page = 0; page < maxpages; page++)
                     {
@@ -162,7 +165,7 @@ namespace JacRed.Controllers.CRON
 
             var torrents = new List<MegapeerDetails>();
 
-            foreach (string row in html.Split("class=\"tCenter hl-tr\"").Skip(1))
+            foreach (string row in html.Split("class=\"table_fon\"").Skip(1))
             {
                 #region Локальный метод - Match
                 string Match(string pattern, int index = 1)
@@ -174,20 +177,23 @@ namespace JacRed.Controllers.CRON
                 #endregion
 
                 #region createTime
-                DateTime createTime = tParse.ParseCreateTime(Match("<span>Добавлен:</span> ([0-9]+ [^ ]+ [0-9]+)"), "dd.MM.yyyy");
+                DateTime createTime = tParse.ParseCreateTime(Match("<td>([0-9]+ [^ ]+ [0-9]+)</td><td>"), "dd.MM.yy");
                 if (createTime == default)
                     continue;
                 #endregion
 
                 #region Данные раздачи
-                string url = Match("href=\"/(torrent/[0-9]+)\"");
-                string title = Match("class=\"med tLink hl-tags bold\" [^>]+>([^\n\r]+)</a>");
-                title = Regex.Replace(title, "<[^>]+>", "");
+                string url = Match("href=\"/(torrent/[0-9]+)");
+                string title = Match("class=\"url\">([^<]+)</a></td>");
+                //title = Regex.Replace(title, "<[^>]+>", "");
 
-                string sizeName = Match("href=\"download/[0-9]+\">([\n\r\t ]+)?([^<\n\r]+)<", 2).Trim();
+                string sizeName = Match("<td align=\"right\">([^<\n\r]+)", 1).Trim();
 
                 if (string.IsNullOrWhiteSpace(title))
                     continue;
+
+                string _sid = Match("alt=\"S\"><font [^>]+>([0-9]+)</font>", 1);
+                string _pir = Match("alt=\"L\"><font [^>]+>([0-9]+)</font>", 1);
 
                 url = $"{AppInit.conf.Megapeer.host}/{url}";
                 #endregion
@@ -382,13 +388,17 @@ namespace JacRed.Controllers.CRON
                     if (string.IsNullOrWhiteSpace(downloadid))
                         continue;
 
+                    int.TryParse(_sid, out int sid);
+                    int.TryParse(_pir, out int pir);
+
                     torrents.Add(new MegapeerDetails()
                     {
                         trackerName = "megapeer",
                         types = types,
                         url = url,
                         title = title,
-                        sid = 1,
+                        sid = sid,
+                        pir = pir,
                         sizeName = sizeName,
                         createTime = createTime,
                         name = name,
