@@ -24,7 +24,7 @@ WORKDIR $JACRED_HOME
 
 EXPOSE 9117
 
-VOLUME [ "$JACRED_HOME/init.conf", "$JACRED_HOME/Data" ]
+VOLUME [ "$JACRED_HOME" ]
 
 ENTRYPOINT ["dotnet", "JacRed.dll"]
 ### BUILD MAIN IMAGE end ###
