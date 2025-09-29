@@ -99,9 +99,24 @@ namespace JacRed.Controllers.CRON
 
 
         #region Parse
+        static bool _workParse = false;
+
         async public Task<string> Parse(int page = 1)
         {
-            await parsePage(page);
+            if (_workParse)
+                return "work";
+
+            _workParse = true;
+
+            try
+            {
+                await parsePage(page);
+            }
+            catch { }
+            finally
+            {
+                _workParse = false;
+            }
 
             return "ok";
         }

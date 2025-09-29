@@ -66,7 +66,7 @@ namespace JacRed.Engine
         }
 
 
-        async static ValueTask<bool> ckeck(string tracker)
+        async static Task<bool> ckeck(string tracker)
         {
             if (string.IsNullOrWhiteSpace(tracker) || tracker.Contains("["))
                 return false;
@@ -75,14 +75,16 @@ namespace JacRed.Engine
             {
                 try
                 {
-                    var handler = new System.Net.Http.HttpClientHandler();
-                    handler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-
-                    using (var client = new System.Net.Http.HttpClient(handler))
+                    using (var handler = new System.Net.Http.HttpClientHandler())
                     {
-                        client.Timeout = TimeSpan.FromSeconds(7);
-                        await client.GetAsync(tracker, System.Net.Http.HttpCompletionOption.ResponseHeadersRead);
-                        return true;
+                        handler.ServerCertificateCustomValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+
+                        using (var client = new System.Net.Http.HttpClient(handler))
+                        {
+                            client.Timeout = TimeSpan.FromSeconds(7);
+                            await client.GetAsync(tracker, System.Net.Http.HttpCompletionOption.ResponseHeadersRead);
+                            return true;
+                        }
                     }
                 }
                 catch { }

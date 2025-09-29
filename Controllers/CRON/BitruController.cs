@@ -27,16 +27,30 @@ namespace JacRed.Controllers.CRON
 
 
         #region Parse
+        static bool _workParse = false;
+
         async public Task<string> Parse(int page = 1)
         {
+            if (_workParse)
+                return "work";
+
+            _workParse = true;
             string log = "";
 
-            // movie     - Фильмы    | Фильмы
-            // serial    - Сериалы   | Сериалы
-            foreach (string cat in new List<string>() { "movie", "serial" })
+            try
             {
-                await parsePage(cat, page);
-                log += $"{cat} - {page}\n";
+                // movie     - Фильмы    | Фильмы
+                // serial    - Сериалы   | Сериалы
+                foreach (string cat in new List<string>() { "movie", "serial" })
+                {
+                    await parsePage(cat, page);
+                    log += $"{cat} - {page}\n";
+                }
+            }
+            catch { }
+            finally
+            {
+                _workParse = false;
             }
 
             return string.IsNullOrWhiteSpace(log) ? "ok" : log;

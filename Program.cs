@@ -15,6 +15,10 @@ namespace JacRed
     {
         public static void Main(string[] args)
         {
+            TracksDB.Configuration();
+            SyncController.Configuration();
+            ApiController.getFastdb(update: true);
+
             ThreadPool.QueueUserWorkItem(async _ => 
             {
                 while (true)
