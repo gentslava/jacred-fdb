@@ -21,7 +21,7 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 COPY --from=builder /app $JACRED_HOME/
 
 RUN apk --no-cache --update add icu-libs && \
-    apk add --no-cache privoxy busybox-cron
+    apk add --no-cache privoxy
 
 COPY ./entrypoint.sh /entrypoint.sh
 
