@@ -1,3 +1,5 @@
+ARG DOTNET_VERSION=9.0
+
 ### BUILD JACRED MULTIARCH START ###
 FROM --platform=$BUILDPLATFORM alpine AS builder
 
@@ -11,7 +13,7 @@ RUN rm -f publish.zip
 ### BUILD JACRED MULTIARCH END ###
 
 # ### BUILD MAIN IMAGE START ###
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}-alpine
 
 ENV JACRED_HOME=/home/jacred
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
@@ -23,6 +25,8 @@ RUN apk --no-cache --update add icu-libs
 WORKDIR $JACRED_HOME
 
 EXPOSE 9117
+
+HEALTHCHECK CMD wget --quiet --timeout=10 --spider http://127.0.0.1:9117 || exit 1
 
 VOLUME [ "$JACRED_HOME" ]
 
