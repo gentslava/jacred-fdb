@@ -24,12 +24,11 @@ RUN apk --no-cache --update add icu-libs && \
     apk add --no-cache privoxy
 
 COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 COPY ./privoxy.config /etc/privoxy/config
 
-COPY Data/crontab /etc/cron.d/jacred
-RUN chmod 0600 /etc/cron.d/jacred && \
-    chmod +x /entrypoint.sh
+COPY Data/crontab /etc/crontabs/root
 
 WORKDIR $JACRED_HOME
 
