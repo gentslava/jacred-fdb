@@ -20,7 +20,16 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 COPY --from=builder /app $JACRED_HOME/
 
-RUN apk --no-cache --update add icu-libs
+RUN apk --no-cache --update add icu-libs && \
+    apk add --no-cache privoxy busybox-cron
+
+COPY ./entrypoint.sh /entrypoint.sh
+
+COPY ./privoxy.config /etc/privoxy/config
+
+COPY Data/crontab /etc/cron.d/jacred
+RUN chmod 0600 /etc/cron.d/jacred && \
+    chmod +x /entrypoint.sh
 
 WORKDIR $JACRED_HOME
 
@@ -30,5 +39,5 @@ HEALTHCHECK CMD wget --quiet --timeout=10 --spider http://127.0.0.1:9117 || exit
 
 VOLUME [ "$JACRED_HOME" ]
 
-ENTRYPOINT ["dotnet", "JacRed.dll"]
+ENTRYPOINT ["/entrypoint.sh"]
 ### BUILD MAIN IMAGE end ###
