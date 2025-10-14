@@ -129,8 +129,11 @@ namespace JacRed.Controllers.CRON
                 }
             }
             catch { }
+            finally
+            {
+                _workParse = false;
+            }
 
-            _workParse = false;
             return "ok";
         }
         #endregion

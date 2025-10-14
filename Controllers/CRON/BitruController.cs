@@ -27,16 +27,30 @@ namespace JacRed.Controllers.CRON
 
 
         #region Parse
+        static bool _workParse = false;
+
         async public Task<string> Parse(int page = 1)
         {
+            if (_workParse)
+                return "work";
+
+            _workParse = true;
             string log = "";
 
-            // movie     - Фильмы    | Фильмы
-            // serial    - Сериалы   | Сериалы
-            foreach (string cat in new List<string>() { "movie", "serial" })
+            try
             {
-                await parsePage(cat, page);
-                log += $"{cat} - {page}\n";
+                // movie     - Фильмы    | Фильмы
+                // serial    - Сериалы   | Сериалы
+                foreach (string cat in new List<string>() { "movie", "serial" })
+                {
+                    await parsePage(cat, page);
+                    log += $"{cat} - {page}\n";
+                }
+            }
+            catch { }
+            finally
+            {
+                _workParse = false;
             }
 
             return string.IsNullOrWhiteSpace(log) ? "ok" : log;
@@ -58,22 +72,22 @@ namespace JacRed.Controllers.CRON
                 // Максимальное количиство страниц
                 int.TryParse(Regex.Match(html, $"<a href=\"browse.php\\?tmp={cat}&page=[^\"]+\">([0-9]+)</a></div>").Groups[1].Value, out int maxpages);
 
-                if (maxpages > 0)
-                {
-                    // Загружаем список страниц в список задач
-                    for (int page = 1; page <= maxpages; page++)
-                    {
-                        try
-                        {
-                            if (!taskParse.ContainsKey(cat))
-                                taskParse.Add(cat, new List<TaskParse>());
+                if (maxpages == 0)
+                    maxpages = 1;
 
-                            var val = taskParse[cat];
-                            if (val.Find(i => i.page == page) == null)
-                                val.Add(new TaskParse(page));
-                        }
-                        catch { }
+                // Загружаем список страниц в список задач
+                for (int page = 1; page <= maxpages; page++)
+                {
+                    try
+                    {
+                        if (!taskParse.ContainsKey(cat))
+                            taskParse.Add(cat, new List<TaskParse>());
+
+                        var val = taskParse[cat];
+                        if (val.FirstOrDefault(i => i.page == page) == null)
+                            val.Add(new TaskParse(page));
                     }
+                    catch { }
                 }
             }
 

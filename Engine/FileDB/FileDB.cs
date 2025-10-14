@@ -253,9 +253,10 @@ namespace JacRed.Engine
 
             #region videotype
             t.videotype = "sdr";
-            if (Regex.IsMatch(titlelower, "(\\[| )hdr( |\\]|,|$)") || Regex.IsMatch(titlelower, "(10-bit|10 bit|10-бит|10 бит)"))
+            if (Regex.IsMatch(titlelower, "(\\[|,| )hdr(10| |\\]|,|$)") || Regex.IsMatch(titlelower, "(10-bit|10 bit|10-бит|10 бит|hdr10)"))
             {
-                t.videotype = "hdr";
+                if (!Regex.IsMatch(titlelower, "(\\[|,| )sdr( |\\]|,|$)"))
+                    t.videotype = "hdr";
             }
             #endregion
 

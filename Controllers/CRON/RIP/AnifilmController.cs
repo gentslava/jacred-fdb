@@ -64,8 +64,11 @@ namespace JacRed.Controllers.CRON
                 }
             }
             catch { }
+            finally
+            {
+                workParse = false;
+            }
 
-            workParse = false;
             return string.IsNullOrWhiteSpace(log) ? "ok" : log;
         }
         #endregion

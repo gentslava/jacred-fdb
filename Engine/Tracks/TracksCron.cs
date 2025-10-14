@@ -116,8 +116,7 @@ namespace JacRed.Engine
                             if (TracksDB.Get(t.magnet) == null)
                             {
                                 t.ffprobe_tryingdata++;
-                                _ = TracksDB.Add(t.magnet);
-                                await Task.Delay(AppInit.conf.tracksdelay);
+                                await TracksDB.Add(t.magnet);
                             }
                         }
                         catch { }
