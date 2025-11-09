@@ -5,11 +5,6 @@ DEST="/home/jacred"
 # sudo su -
 apt update && apt install -y wget unzip
 
-# Install .NET
-wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod 755 dotnet-install.sh
-./dotnet-install.sh --channel 9.0 --install-dir /usr/share/dotnet
-ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
-
 # Download zip
 mkdir $DEST -p && cd $DEST
 wget https://github.com/immisterio/jacred-fdb/releases/latest/download/publish.zip
