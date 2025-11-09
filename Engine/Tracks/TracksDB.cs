@@ -17,6 +17,30 @@ namespace JacRed.Engine
 {
     public static class TracksDB
     {
+        public static void Configuration()
+        {
+            Console.WriteLine("TracksDB load");
+
+            foreach (var folder1 in Directory.GetDirectories("Data/tracks"))
+            {
+                foreach (var folder2 in Directory.GetDirectories(folder1))
+                {
+                    foreach (var file in Directory.GetFiles(folder2))
+                    {
+                        string infohash = folder1.Substring(12) + folder2.Substring(folder1.Length + 1) + Path.GetFileName(file);
+
+                        try
+                        {
+                            var res = JsonConvert.DeserializeObject<ffprobemodel>(File.ReadAllText(file));
+                            if (res?.streams != null && res.streams.Count > 0)
+                                Database.TryAdd(infohash, res);
+                        }
+                        catch { }
+                    }
+                }
+            }
+        }
+
         static Random random = new Random();
 
         static ConcurrentDictionary<string, ffprobemodel> Database = new ConcurrentDictionary<string, ffprobemodel>();
@@ -42,12 +66,12 @@ namespace JacRed.Engine
             return false;
         }
 
-        public static List<ffStream> Get(string magnet, string[] types = null)
+        public static List<ffStream> Get(string magnet, string[] types = null, bool onlydb = false)
         {
             if (types != null && theBad(types))
                 return null;
 
-            string infohash = MagnetLink.Parse(magnet).InfoHash.ToHex();
+            string infohash = MagnetLink.Parse(magnet).InfoHashes.V1OrV2.ToHex();
             if (Database.TryGetValue(infohash, out ffprobemodel res))
                 return res.streams;
 
@@ -76,7 +100,7 @@ namespace JacRed.Engine
             if (AppInit.conf.tsuri == null || AppInit.conf.tsuri.Length == 0)
                 return;
 
-            string infohash = MagnetLink.Parse(magnet).InfoHash.ToHex();
+            string infohash = MagnetLink.Parse(magnet).InfoHashes.V1OrV2.ToHex();
             if (string.IsNullOrEmpty(infohash))
                 return;
 
@@ -109,7 +133,7 @@ namespace JacRed.Engine
             }
             catch { }
 
-            _ = HttpClient.Post($"{tsuri}/torrents", "{\"action\":\"rem\",\"hash\":\"" + infohash + "\"}");
+            await HttpClient.Post($"{tsuri}/torrents", "{\"action\":\"rem\",\"hash\":\"" + infohash + "\"}");
 
             if (res?.streams == null || res.streams.Count == 0)
                 return;

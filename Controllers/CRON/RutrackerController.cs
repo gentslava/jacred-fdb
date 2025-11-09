@@ -111,8 +111,11 @@ namespace JacRed.Controllers.CRON
                 }
             }
             catch { }
+            finally
+            {
+                _workParse = false;
+            }
 
-            _workParse = false;
             return string.IsNullOrWhiteSpace(log) ? "ok" : log;
         }
         #endregion
@@ -192,7 +195,7 @@ namespace JacRed.Controllers.CRON
                                 taskParse.Add(cat, new List<TaskParse>());
 
                             var val = taskParse[cat];
-                            if (val.Find(i => i.page == page) == null)
+                            if (val.FirstOrDefault(i => i.page == page) == null)
                                 val.Add(new TaskParse(page));
                         }
                     }
@@ -202,7 +205,7 @@ namespace JacRed.Controllers.CRON
                             taskParse.Add(cat, new List<TaskParse>());
 
                         var val = taskParse[cat];
-                        if (val.Find(i => i.page == 1) == null)
+                        if (val.FirstOrDefault(i => i.page == 1) == null)
                             val.Add(new TaskParse(1));
                     }
                 }

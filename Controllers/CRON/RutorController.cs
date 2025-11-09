@@ -56,8 +56,11 @@ namespace JacRed.Controllers.CRON
                 }
             }
             catch { }
+            finally
+            {
+                _workParse = false;
+            }
 
-            _workParse = false;
             return string.IsNullOrWhiteSpace(log) ? "ok" : log;
         }
         #endregion
@@ -74,22 +77,19 @@ namespace JacRed.Controllers.CRON
                 // Максимальное количиство страниц
                 int.TryParse(Regex.Match(html, "<a href=\"/browse/([0-9]+)/[0-9]+/[0-9]+/[0-9]+\"><b>[0-9]+&nbsp;-&nbsp;[0-9]+</b></a></p>").Groups[1].Value, out int maxpages);
 
-                if (maxpages > 0)
+                // Загружаем список страниц в список задач
+                for (int page = 0; page <= maxpages; page++)
                 {
-                    // Загружаем список страниц в список задач
-                    for (int page = 0; page < maxpages; page++)
+                    try
                     {
-                        try
-                        {
-                            if (!taskParse.ContainsKey(cat))
-                                taskParse.Add(cat, new List<TaskParse>());
+                        if (!taskParse.ContainsKey(cat))
+                            taskParse.Add(cat, new List<TaskParse>());
 
-                            var val = taskParse[cat];
-                            if (val.Find(i => i.page == page) == null)
-                                val.Add(new TaskParse(page));
-                        }
-                        catch { }
+                        var val = taskParse[cat];
+                        if (val.FirstOrDefault(i => i.page == page) == null)
+                            val.Add(new TaskParse(page));
                     }
+                    catch { }
                 }
             }
 

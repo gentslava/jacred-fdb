@@ -8,6 +8,7 @@ using JacRed.Engine;
 using System.Threading.Tasks;
 using System;
 using JacRed.Controllers;
+using System.IO;
 
 namespace JacRed
 {
@@ -15,6 +16,15 @@ namespace JacRed
     {
         public static void Main(string[] args)
         {
+            Directory.CreateDirectory("Data/fdb");
+            Directory.CreateDirectory("Data/temp");
+            Directory.CreateDirectory("Data/log");
+            Directory.CreateDirectory("Data/tracks");
+
+            TracksDB.Configuration();
+            SyncController.Configuration();
+            ApiController.getFastdb(update: true);
+
             ThreadPool.QueueUserWorkItem(async _ => 
             {
                 while (true)
