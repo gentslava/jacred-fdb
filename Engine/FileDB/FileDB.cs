@@ -81,6 +81,12 @@ namespace JacRed.Engine
                     upt(true);
                 }
 
+                if (torrent.createTime != t.createTime)
+                {
+                    t.createTime = torrent.createTime;
+                    upt(true);
+                }
+                
                 if (!string.IsNullOrWhiteSpace(torrent.magnet) && torrent.magnet != t.magnet)
                 {
                     t.ffprobe_tryingdata = 0;

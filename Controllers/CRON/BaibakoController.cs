@@ -89,6 +89,9 @@ namespace JacRed.Controllers.CRON
 
         async public Task<string> Parse(int maxpage)
         {
+            if (maxpage == 0)
+                maxpage = 5;
+
             #region Авторизация
             if (Cookie(memoryCache) == null)
             {

@@ -72,7 +72,7 @@ namespace JacRed
 
         public string[] synctrackers = null;
 
-        public string[] disable_trackers = new string[] { "hdrezka", "anifilm" };
+        public string[] disable_trackers = new string[] { "hdrezka" };
 
         public bool syncsport = true;
 
@@ -89,9 +89,9 @@ namespace JacRed
         public int timeSync = 60; // минут
 
 
-        public TrackerSettings Rutor = new TrackerSettings("http://rutor.info");
+        public TrackerSettings Rutor = new TrackerSettings("https://rutor.is");
 
-        public TrackerSettings Megapeer = new TrackerSettings("http://megapeer.vip");
+        public TrackerSettings Megapeer = new TrackerSettings("https://megapeer.vip");
 
         public TrackerSettings TorrentBy = new TrackerSettings("https://torrent.by");
 
@@ -107,13 +107,17 @@ namespace JacRed
 
         public TrackerSettings Selezen = new TrackerSettings("https://open.selezen.org");
 
-        public TrackerSettings Anilibria = new TrackerSettings("https://api.anilibria.tv");
+        public TrackerSettings Anilibria = new TrackerSettings("https://anilibria.top");
 
         public TrackerSettings Animelayer = new TrackerSettings("http://animelayer.ru");
 
         public TrackerSettings Anifilm = new TrackerSettings("https://anifilm.net");
-
-        public TrackerSettings Rezka = new TrackerSettings("https://rezka.cc");
+        
+        public TrackerSettings Anidub = new TrackerSettings("https://tr.anidub.com");
+        
+        public TrackerSettings Leproduction = new TrackerSettings("https://www.le-production.tv");
+        
+        public TrackerSettings Anistar = new TrackerSettings("https://anistar.org");
 
         public TrackerSettings Baibako = new TrackerSettings("http://baibako.tv");
 
